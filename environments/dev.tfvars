@@ -1,0 +1,5 @@
+project_name = "aws-lambda-integration"
+environment  = "dev"
+aws_region   = "us-east-2"
+aws_profile  = "betto-admin"
+vpc_cidr     = "10.10.0.0/16"
