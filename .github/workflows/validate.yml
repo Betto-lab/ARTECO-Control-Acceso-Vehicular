@@ -1,0 +1,41 @@
+name: Validate ARTECO
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.4"
+      - name: Format
+        run: terraform -chdir=terraform fmt -check
+      - name: Initialize without backend
+        run: terraform -chdir=terraform init -backend=false
+      - name: Validate
+        run: terraform -chdir=terraform validate
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+          framework: terraform
+          quiet: true
+          soft_fail: true
