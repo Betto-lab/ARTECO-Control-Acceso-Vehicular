@@ -43,3 +43,22 @@ Los comandos anteriores validan código y configuración. No ejecutan `terraform
 | `CKV_AWS_27` | La cola principal y la DLQ usan cifrado administrado por SQS. |
 
 Consulta [docs/ARTECO.md](docs/ARTECO.md) para el alcance real y los pendientes.
+
+## Estructura completa
+
+```text
+terraform/          Infraestructura AWS y controles de seguridad
+lambda/             Validación, IA, registro y alertas
+database/           Esquema PostgreSQL versionado
+frontend/           Panel web estático de demostración
+tests/              Pruebas unitarias sin dependencias AWS
+environments/       Variables DEV, QA y PROD
+docs/               Arquitectura, Checkov y evidencias
+.github/workflows/  Pruebas, Terraform y Checkov en cada PR
+```
+
+## Servicios avanzados
+
+Aurora Serverless v2 está definido pero desactivado por defecto mediante `enable_database=false`. Cognito protege la ruta vehicular, Rekognition analiza evidencias privadas en S3, SNS publica alertas y SQS desacopla el registro.
+
+Más información: [arquitectura](docs/ARCHITECTURE.md), [Checkov](docs/CHECKOV.md) y [evidencias](docs/EVIDENCE.md).
