@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Nombre base del proyecto"
   type        = string
-  default     = "aws-lambda-integration"
+  default     = "arteco"
 }
 
 variable "environment" {
@@ -29,4 +29,22 @@ variable "aws_profile" {
 variable "vpc_cidr" {
   description = "CIDR principal de la VPC"
   type        = string
+}
+
+variable "enable_database" {
+  description = "Crea Aurora Serverless v2. Mantener false en validaciones locales para evitar costos."
+  type        = bool
+  default     = false
+}
+
+variable "database_name" {
+  description = "Nombre lógico de la base de datos ARTECO"
+  type        = string
+  default     = "arteco"
+}
+
+variable "alert_email" {
+  description = "Correo opcional para suscripción SNS; vacío evita crear la suscripción."
+  type        = string
+  default     = ""
 }
