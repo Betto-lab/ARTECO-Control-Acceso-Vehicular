@@ -30,3 +30,18 @@ output "upload_lambda_name" {
 output "processor_lambda_name" {
   value = aws_lambda_function.processor.function_name
 }
+
+output "vehicle_access_endpoint" {
+  description = "Endpoint autenticado para eventos vehiculares"
+  value       = "${aws_apigatewayv2_api.http_api.api_endpoint}/vehicle-access"
+}
+
+output "cognito_user_pool_id" {
+  value = aws_cognito_user_pool.arteco.id
+}
+
+output "database_endpoint" {
+  description = "Endpoint de Aurora cuando enable_database=true"
+  value       = var.enable_database ? aws_rds_cluster.arteco[0].endpoint : null
+  sensitive   = true
+}

@@ -22,3 +22,8 @@ crash.*.log
 Thumbs.db
 .vscode/
 .idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.terraform/
+*.tfplan
