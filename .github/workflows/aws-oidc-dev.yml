@@ -36,3 +36,12 @@ jobs:
           aws s3api get-bucket-location --bucket arteco-tfstate-2026-48271
           aws s3api list-objects-v2 --bucket arteco-tfstate-2026-48271 --prefix arteco/dev/ --max-items 5
 
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.4"
+
+      - name: Inicializar backend remoto
+        run: terraform -chdir=terraform init -input=false -reconfigure
+
