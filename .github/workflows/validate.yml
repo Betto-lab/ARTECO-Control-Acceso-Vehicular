@@ -3,7 +3,7 @@ name: Validate ARTECO
 on:
   pull_request:
   push:
-  branches: [main, development]
+    branches: [main, development]
 
 permissions:
   contents: read
