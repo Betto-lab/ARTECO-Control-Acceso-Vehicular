@@ -45,3 +45,6 @@ jobs:
       - name: Inicializar backend remoto
         run: terraform -chdir=terraform init -input=false -reconfigure
 
+      - name: Revisar plan de infraestructura DEV
+        run: terraform -chdir=terraform plan -input=false -no-color -var-file=../environments/dev.tfvars
+
