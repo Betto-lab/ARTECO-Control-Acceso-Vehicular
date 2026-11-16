@@ -29,3 +29,10 @@ jobs:
 
       - name: Verificar identidad AWS
         run: aws sts get-caller-identity
+
+        
+      - name: Verificar acceso al estado de Terraform
+        run: |
+          aws s3api get-bucket-location --bucket arteco-tfstate-2026-48271
+          aws s3api list-objects-v2 --bucket arteco-tfstate-2026-48271 --prefix arteco/dev/ --max-items 5
+
