@@ -1,0 +1,31 @@
+
+name: ARTECO - Verificar AWS OIDC
+
+on:
+  push:
+    branches:
+      - development
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  verificar-aws:
+    name: Verificar conexión con AWS
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Autenticación OIDC con AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: arteco-dev
+
+      - name: Verificar identidad AWS
+        run: aws sts get-caller-identity
