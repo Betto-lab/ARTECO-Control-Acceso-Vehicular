@@ -212,7 +212,10 @@
       "Sid": "TerraformDevApiGateway",
       "Effect": "Allow",
       "Action": "apigateway:*",
-      "Resource": "arn:aws:apigateway:us-east-2::/apis*"
+      "Resource": [
+        "arn:aws:apigateway:us-east-2::/apis*",
+        "arn:aws:apigateway:us-east-2::/tags/*"
+      ]
     },
     {
       "Sid": "TerraformDevCognito",
@@ -225,6 +228,7 @@
         "cognito-idp:DescribeUserPool",
         "cognito-idp:DescribeUserPoolClient",
         "cognito-idp:ListTagsForResource",
+        "cognito-idp:SetUserPoolMfaConfig",
         "cognito-idp:TagResource",
         "cognito-idp:UntagResource",
         "cognito-idp:UpdateUserPool",
@@ -243,7 +247,6 @@
       "Action": [
         "logs:CreateLogGroup",
         "logs:DeleteLogGroup",
-        "logs:DescribeLogGroups",
         "logs:ListTagsForResource",
         "logs:PutRetentionPolicy",
         "logs:TagResource",
@@ -253,6 +256,17 @@
         "arn:aws:logs:us-east-2:755909808380:log-group:/aws/lambda/arteco-dev-*",
         "arn:aws:logs:us-east-2:755909808380:log-group:/aws/apigateway/arteco-dev*"
       ]
+    },
+    {
+      "Sid": "TerraformDevLogsDiscovery",
+      "Effect": "Allow",
+      "Action": "logs:DescribeLogGroups",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "us-east-2"
+        }
+      }
     },
     {
       "Sid": "TerraformDevAlarms",
