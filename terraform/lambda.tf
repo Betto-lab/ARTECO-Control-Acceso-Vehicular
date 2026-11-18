@@ -11,6 +11,8 @@ data "archive_file" "processor_lambda_zip" {
 }
 
 resource "aws_security_group" "lambda_sg" {
+  count = var.enable_lambda_vpc || var.enable_database ? 1 : 0
+
   name        = "${var.project_name}-${var.environment}-lambda-sg"
   description = "Security group for Lambda functions"
   vpc_id      = aws_vpc.main.id
@@ -47,15 +49,19 @@ resource "aws_lambda_function" "upload" {
     }
   }
 
-  vpc_config {
-    subnet_ids = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+  dynamic "vpc_config" {
+    for_each = var.enable_lambda_vpc ? [1] : []
 
-    security_group_ids = [
-      aws_security_group.lambda_sg.id
-    ]
+    content {
+      subnet_ids = [
+        aws_subnet.private_a.id,
+        aws_subnet.private_b.id
+      ]
+
+      security_group_ids = [
+        aws_security_group.lambda_sg[0].id
+      ]
+    }
   }
 
   depends_on = [
@@ -88,15 +94,19 @@ resource "aws_lambda_function" "processor" {
     }
   }
 
-  vpc_config {
-    subnet_ids = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+  dynamic "vpc_config" {
+    for_each = var.enable_lambda_vpc ? [1] : []
 
-    security_group_ids = [
-      aws_security_group.lambda_sg.id
-    ]
+    content {
+      subnet_ids = [
+        aws_subnet.private_a.id,
+        aws_subnet.private_b.id
+      ]
+
+      security_group_ids = [
+        aws_security_group.lambda_sg[0].id
+      ]
+    }
   }
 
   depends_on = [

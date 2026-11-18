@@ -32,11 +32,13 @@ resource "aws_iam_role_policy_attachment" "processor_basic_execution" {
 }
 
 resource "aws_iam_role_policy_attachment" "upload_vpc_access" {
+  count      = var.enable_lambda_vpc ? 1 : 0
   role       = aws_iam_role.upload_lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 resource "aws_iam_role_policy_attachment" "processor_vpc_access" {
+  count      = var.enable_lambda_vpc ? 1 : 0
   role       = aws_iam_role.processor_lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }

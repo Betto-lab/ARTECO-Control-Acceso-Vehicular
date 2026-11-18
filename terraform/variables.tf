@@ -38,7 +38,19 @@ variable "enable_database" {
 }
 
 variable "enable_sqs_vpc_endpoint" {
-  description = "Crea el endpoint privado de SQS. Desactivarlo en dev evita su costo por hora cuando existe salida por NAT."
+  description = "Crea el endpoint privado de SQS. Desactivarlo cuando Lambda no usa VPC evita su costo por hora."
+  type        = bool
+  default     = true
+}
+
+variable "enable_lambda_vpc" {
+  description = "Conecta las funciones Lambda a las subredes privadas. Desactivarlo en dev permite usar servicios AWS sin NAT."
+  type        = bool
+  default     = true
+}
+
+variable "enable_nat_gateway" {
+  description = "Crea NAT Gateways para la salida de las subredes privadas. Desactivarlo evita su costo por hora."
   type        = bool
   default     = true
 }

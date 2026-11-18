@@ -63,6 +63,7 @@ resource "aws_subnet" "private_b" {
 }
 
 resource "aws_eip" "nat_a" {
+  count  = var.enable_nat_gateway ? 1 : 0
   domain = "vpc"
 
   tags = {
@@ -71,7 +72,7 @@ resource "aws_eip" "nat_a" {
 }
 
 resource "aws_eip" "nat_b" {
-  count  = var.environment == "dev" ? 0 : 1
+  count  = var.enable_nat_gateway && var.environment != "dev" ? 1 : 0
   domain = "vpc"
 
   tags = {
@@ -80,7 +81,8 @@ resource "aws_eip" "nat_b" {
 }
 
 resource "aws_nat_gateway" "nat_a" {
-  allocation_id = aws_eip.nat_a.id
+  count         = var.enable_nat_gateway ? 1 : 0
+  allocation_id = aws_eip.nat_a[0].id
   subnet_id     = aws_subnet.public_a.id
 
   depends_on = [aws_internet_gateway.main]
@@ -91,7 +93,7 @@ resource "aws_nat_gateway" "nat_a" {
 }
 
 resource "aws_nat_gateway" "nat_b" {
-  count         = var.environment == "dev" ? 0 : 1
+  count         = var.enable_nat_gateway && var.environment != "dev" ? 1 : 0
   allocation_id = aws_eip.nat_b[0].id
   subnet_id     = aws_subnet.public_b.id
 
@@ -128,9 +130,13 @@ resource "aws_route_table_association" "public_b" {
 resource "aws_route_table" "private_a" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_a.id
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.nat_a[0].id
+    }
   }
 
   tags = {
@@ -141,9 +147,13 @@ resource "aws_route_table" "private_a" {
 resource "aws_route_table" "private_b" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = var.environment == "dev" ? aws_nat_gateway.nat_a.id : aws_nat_gateway.nat_b[0].id
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = var.environment == "dev" ? aws_nat_gateway.nat_a[0].id : aws_nat_gateway.nat_b[0].id
+    }
   }
 
   tags = {

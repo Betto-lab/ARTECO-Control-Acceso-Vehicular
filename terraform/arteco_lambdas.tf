@@ -26,6 +26,7 @@ resource "aws_iam_role_policy_attachment" "arteco_basic" {
 }
 
 resource "aws_iam_role_policy_attachment" "arteco_vpc" {
+  count      = var.enable_lambda_vpc ? 1 : 0
   role       = aws_iam_role.arteco_lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
@@ -66,9 +67,13 @@ resource "aws_lambda_function" "arteco" {
     }
   }
 
-  vpc_config {
-    subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-    security_group_ids = [aws_security_group.lambda_sg.id]
+  dynamic "vpc_config" {
+    for_each = var.enable_lambda_vpc ? [1] : []
+
+    content {
+      subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+      security_group_ids = [aws_security_group.lambda_sg[0].id]
+    }
   }
 
   depends_on = [aws_iam_role_policy_attachment.arteco_basic, aws_iam_role_policy_attachment.arteco_vpc, aws_iam_role_policy_attachment.arteco_runtime]
