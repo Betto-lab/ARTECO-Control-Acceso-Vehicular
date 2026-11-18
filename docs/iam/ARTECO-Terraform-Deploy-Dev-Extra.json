@@ -9,7 +9,9 @@
         "logs:GetLogDelivery",
         "logs:UpdateLogDelivery",
         "logs:DeleteLogDelivery",
-        "logs:ListLogDeliveries"
+        "logs:ListLogDeliveries",
+        "logs:PutResourcePolicy",
+        "logs:DescribeResourcePolicies"
       ],
       "Resource": "*",
       "Condition": {
