@@ -1,5 +1,16 @@
 # Evidencias por integrante
 
+## Despliegue DEV — 18 de noviembre de 2026
+
+- Apply final exitoso: https://github.com/Betto-lab/ARTECO-Control-Acceso-Vehicular/actions/runs/44365811942
+- Plan posterior al despliegue: https://github.com/Betto-lab/ARTECO-Control-Acceso-Vehicular/actions/runs/44365596939
+- Resultado del plan posterior: `No changes. Your infrastructure matches the configuration.`
+- API base: `https://mws54355qd.execute-api.us-east-2.amazonaws.com`
+- Prueba `POST /upload`: HTTP `200`, archivo aceptado con clave `uploads/86476cab-8b5f-4032-8920-c989db173ac5.bin`.
+- Prueba `POST /vehicle-access` sin token: HTTP `401 Unauthorized`, confirmando que el autorizador Cognito protege la ruta.
+
+La prueba de carga confirma que la Lambda pudo escribir en S3 y enviar el mensaje a SQS antes de devolver HTTP `200`. La comprobación independiente del objeto procesado queda pendiente porque el entorno local no dispone de un perfil AWS administrativo. Tampoco se afirma todavía autorización vehicular ni persistencia de accesos.
+
 Cada participante debe crear su propia rama y pull request. No se deben reutilizar capturas de otra cuenta.
 
 ## Marielsys — `marielsysm19-cpu`

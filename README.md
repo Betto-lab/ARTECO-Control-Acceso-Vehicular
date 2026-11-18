@@ -2,7 +2,7 @@
 
 Repositorio académico para evolucionar una base serverless de AWS hacia el proyecto ARTECO. El objetivo es recibir y procesar eventos de ingreso y salida vehicular con infraestructura definida en Terraform.
 
-> **Estado: prototipo en desarrollo.** El repositorio no representa una implementación completa ni confirma que ARTECO esté desplegado en AWS. La función de acceso vehicular valida el contrato de entrada, pero la autorización, persistencia y lectura automática de placas siguen pendientes.
+> **Estado: infraestructura DEV desplegada y prototipo funcional parcial.** La base serverless está desplegada en AWS y validada con Terraform, pero la autorización vehicular, la persistencia de accesos y la lectura automática de placas siguen pendientes.
 
 ## Alcance disponible
 
@@ -21,7 +21,17 @@ Sensor/operador -> API Gateway -> Lambda de acceso -> autorización (pendiente)
 
 El flujo existente de carga y procesamiento de archivos se conserva como base técnica reutilizable, pero todavía no está adaptado por completo al dominio vehicular.
 
-## Validación local sin desplegar
+## Despliegue DEV validado
+
+- API base: `https://mws54355qd.execute-api.us-east-2.amazonaws.com`
+- `POST /upload`: probado con respuesta HTTP `200`; almacena el archivo en S3 y publica el trabajo en SQS.
+- `POST /vehicle-access`: protegido por Cognito; una solicitud sin token devuelve HTTP `401`.
+- Terraform posterior al despliegue: `No changes`, confirmando que el estado remoto coincide con la configuración.
+- Aurora, NAT Gateway y el endpoint de interfaz SQS permanecen desactivados en DEV para limitar costos.
+
+La infraestructura desplegada no implica todavía un control vehicular completo end-to-end. Consulta [docs/EVIDENCE.md](docs/EVIDENCE.md) para los resultados y enlaces verificables.
+
+## Validación local
 
 Desde la raíz del repositorio:
 
@@ -33,7 +43,7 @@ terraform -chdir=terraform validate
 docker run --rm -v "${PWD}:/repo" bridgecrew/checkov:latest -d /repo/terraform --check CKV_AWS_338,CKV_AWS_27
 ```
 
-Los comandos anteriores validan código y configuración. No ejecutan `terraform plan` ni `terraform apply`, y no crean recursos ni gastos en AWS.
+Los comandos anteriores validan código y configuración local. No modifican los recursos desplegados en AWS.
 
 ## Seguridad corregida
 

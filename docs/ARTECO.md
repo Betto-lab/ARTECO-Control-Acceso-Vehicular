@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-Este repositorio contiene una base serverless reutilizable y un **prototipo no desplegado** para validar eventos de ingreso y salida vehicular. No se afirma que exista todavía un sistema completo de reconocimiento de placas, autorización o persistencia de accesos.
+Este repositorio contiene una base serverless reutilizable **desplegada en el ambiente DEV** y un prototipo para validar eventos de ingreso y salida vehicular. No se afirma que exista todavía un sistema completo de reconocimiento de placas, autorización o persistencia de accesos.
 
 El prototipo se encuentra en `lambda/vehicle_access/index.py` y acepta:
 
@@ -24,9 +24,9 @@ La respuesta usa el estado `accepted_for_prototype` y declara explícitamente `a
 - CloudWatch para registros y alertas.
 - Terraform para describir la infraestructura sin ejecutarla en esta actividad.
 
-## Pendientes antes de una implementación real
+## Pendientes para completar la implementación real
 
-- Conectar la función `vehicle_access` a una ruta propia de API Gateway.
+- Crear un usuario de demostración en Cognito y validar la ruta protegida `POST /vehicle-access` con un token real.
 - Definir el origen confiable de vehículos autorizados y su modelo de datos.
 - Persistir eventos con idempotencia y trazabilidad.
 - Integrar un proveedor de lectura de placas y evaluar precisión/privacidad.
