@@ -37,6 +37,12 @@ variable "enable_database" {
   default     = false
 }
 
+variable "enable_sqs_vpc_endpoint" {
+  description = "Crea el endpoint privado de SQS. Desactivarlo en dev evita su costo por hora cuando existe salida por NAT."
+  type        = bool
+  default     = true
+}
+
 variable "database_name" {
   description = "Nombre lógico de la base de datos ARTECO"
   type        = string

@@ -1,4 +1,6 @@
 resource "aws_security_group" "vpc_endpoints" {
+  count = var.enable_sqs_vpc_endpoint ? 1 : 0
+
   name        = "${var.project_name}-${var.environment}-vpce-sg"
   description = "Security group for VPC interface endpoints"
   vpc_id      = aws_vpc.main.id
@@ -39,6 +41,8 @@ resource "aws_vpc_endpoint" "s3" {
 }
 
 resource "aws_vpc_endpoint" "sqs" {
+  count = var.enable_sqs_vpc_endpoint ? 1 : 0
+
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${var.aws_region}.sqs"
   vpc_endpoint_type   = "Interface"
@@ -50,7 +54,7 @@ resource "aws_vpc_endpoint" "sqs" {
   ]
 
   security_group_ids = [
-    aws_security_group.vpc_endpoints.id
+    aws_security_group.vpc_endpoints[0].id
   ]
 
   tags = {
