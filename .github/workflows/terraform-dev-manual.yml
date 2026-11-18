@@ -1,0 +1,104 @@
+name: ARTECO - Terraform DEV manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Operación controlada sobre DEV
+        required: true
+        type: choice
+        options:
+          - apply
+          - destroy
+      confirmation:
+        description: Escriba APPLY o DESTROY según la operación elegida
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-dev
+  cancel-in-progress: false
+
+jobs:
+  terraform-dev:
+    name: Terraform ${{ inputs.operation }} en DEV
+    if: github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: dev
+
+    steps:
+      - name: Validar confirmación manual
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+
+          case "$OPERATION" in
+            apply)
+              expected="APPLY"
+              ;;
+            destroy)
+              expected="DESTROY"
+              ;;
+            *)
+              echo "Operación no permitida: $OPERATION"
+              exit 1
+              ;;
+          esac
+
+          if [[ "$CONFIRMATION" != "$expected" ]]; then
+            echo "Confirmación inválida. Escriba exactamente $expected."
+            exit 1
+          fi
+
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Autenticación OIDC con AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: arteco-dev-${{ inputs.operation }}
+
+      - name: Verificar identidad AWS
+        run: aws sts get-caller-identity
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.4"
+
+      - name: Inicializar backend remoto
+        run: terraform -chdir=terraform init -input=false -reconfigure
+
+      - name: Crear plan exacto
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+
+          destroy_flag=""
+          if [[ "$OPERATION" == "destroy" ]]; then
+            destroy_flag="-destroy"
+          fi
+
+          terraform -chdir=terraform plan \
+            -input=false \
+            -no-color \
+            $destroy_flag \
+            -var-file=../environments/dev.tfvars \
+            -out=tfplan
+
+          terraform -chdir=terraform show -no-color tfplan
+
+      - name: Ejecutar plan aprobado
+        run: terraform -chdir=terraform apply -input=false -auto-approve tfplan
