@@ -33,7 +33,7 @@ resource "aws_rds_cluster" "arteco" {
   db_subnet_group_name            = aws_db_subnet_group.arteco[0].name
   vpc_security_group_ids          = [aws_security_group.database[0].id]
   enabled_cloudwatch_logs_exports = ["postgresql"]
-  deletion_protection             = true
+  deletion_protection             = var.environment != "dev"
   skip_final_snapshot             = false
   final_snapshot_identifier       = "${var.project_name}-${var.environment}-final"
 
