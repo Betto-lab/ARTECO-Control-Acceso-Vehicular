@@ -36,6 +36,11 @@ output "vehicle_access_endpoint" {
   value       = "${aws_apigatewayv2_api.http_api.api_endpoint}/vehicle-access"
 }
 
+output "vehicle_access_demo_endpoint" {
+  description = "Endpoint DEV sin autenticacion para la demostracion controlada"
+  value       = var.environment == "dev" ? "${aws_apigatewayv2_api.http_api.api_endpoint}/demo/vehicle-access" : null
+}
+
 output "cognito_user_pool_id" {
   value = aws_cognito_user_pool.arteco.id
 }

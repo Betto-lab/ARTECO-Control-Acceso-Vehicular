@@ -27,6 +27,7 @@ resource "aws_rds_cluster" "arteco" {
   database_name                   = var.database_name
   master_username                 = "arteco_admin"
   manage_master_user_password     = true
+  enable_http_endpoint            = true
   storage_encrypted               = true
   backup_retention_period         = 7
   preferred_backup_window         = "03:00-04:00"

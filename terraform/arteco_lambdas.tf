@@ -38,7 +38,19 @@ resource "aws_iam_policy" "arteco_runtime" {
     Statement = concat(
       jsondecode(data.aws_iam_policy_document.arteco_ai.json).Statement,
       [{ Effect = "Allow", Action = ["sqs:SendMessage"], Resource = aws_sqs_queue.main.arn }],
-      [{ Effect = "Allow", Action = ["sns:Publish"], Resource = aws_sns_topic.alerts.arn }]
+      [{ Effect = "Allow", Action = ["sns:Publish"], Resource = aws_sns_topic.alerts.arn }],
+      var.enable_database ? [
+        {
+          Effect   = "Allow"
+          Action   = ["rds-data:ExecuteStatement", "rds-data:BatchExecuteStatement"]
+          Resource = aws_rds_cluster.arteco[0].arn
+        },
+        {
+          Effect   = "Allow"
+          Action   = ["secretsmanager:GetSecretValue"]
+          Resource = aws_rds_cluster.arteco[0].master_user_secret[0].secret_arn
+        }
+      ] : []
     )
   })
 }
@@ -64,6 +76,9 @@ resource "aws_lambda_function" "arteco" {
       EVIDENCE_BUCKET  = aws_s3_bucket.files.bucket
       ACCESS_QUEUE_URL = aws_sqs_queue.main.url
       ALERTS_TOPIC_ARN = aws_sns_topic.alerts.arn
+      DB_CLUSTER_ARN   = var.enable_database ? aws_rds_cluster.arteco[0].arn : ""
+      DB_SECRET_ARN    = var.enable_database ? aws_rds_cluster.arteco[0].master_user_secret[0].secret_arn : ""
+      DB_NAME          = var.database_name
     }
   }
 
@@ -104,6 +119,13 @@ resource "aws_apigatewayv2_route" "vehicle_access" {
   target             = "integrations/${aws_apigatewayv2_integration.vehicle_access.id}"
   authorization_type = "JWT"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+}
+
+resource "aws_apigatewayv2_route" "vehicle_access_demo" {
+  count     = var.environment == "dev" ? 1 : 0
+  api_id    = aws_apigatewayv2_api.http_api.id
+  route_key = "ANY /demo/vehicle-access"
+  target    = "integrations/${aws_apigatewayv2_integration.vehicle_access.id}"
 }
 
 resource "aws_lambda_permission" "vehicle_access_api" {
