@@ -50,3 +50,18 @@ output "database_endpoint" {
   value       = var.enable_database ? aws_rds_cluster.arteco[0].endpoint : null
   sensitive   = true
 }
+
+output "frontend_url" {
+  description = "URL HTTPS del frontend ARTECO distribuido por CloudFront"
+  value       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+}
+
+output "frontend_bucket_name" {
+  description = "Bucket privado que contiene los archivos del frontend"
+  value       = aws_s3_bucket.frontend.bucket
+}
+
+output "frontend_distribution_id" {
+  description = "Identificador de CloudFront usado por Ansible para invalidar la caché"
+  value       = aws_cloudfront_distribution.frontend.id
+}

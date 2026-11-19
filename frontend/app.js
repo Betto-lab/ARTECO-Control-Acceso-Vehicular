@@ -1,7 +1,8 @@
 const apiInput = document.querySelector("#api-url");
 const result = document.querySelector("#result");
 const queryApi = new URLSearchParams(location.search).get("api");
-apiInput.value = queryApi || localStorage.getItem("artecoApiUrl") || "";
+const deployedApi = window.ARTECO_CONFIG?.api_url || "";
+apiInput.value = queryApi || localStorage.getItem("artecoApiUrl") || deployedApi;
 
 function endpoint() {
   const base = apiInput.value.trim().replace(/\/$/, "");
