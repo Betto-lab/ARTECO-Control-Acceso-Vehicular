@@ -1,5 +1,33 @@
 <!doctype html>
 <html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ARTECO</title><link rel="stylesheet" href="styles.css"></head>
-<body><main><h1>ARTECO</h1><p>Panel prototipo de control de acceso vehicular.</p><form id="access-form"><label>Placa<input id="plate" maxlength="9" required></label><label>Evento<select id="event-type"><option value="ENTRY">Ingreso</option><option value="EXIT">Salida</option></select></label><label>Puerta<input id="gate-id" value="gate-01" required></label><button>Validar evento</button></form><pre id="result"></pre></main><script src="app.js"></script></body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ARTECO</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <h1>ARTECO</h1>
+    <p>Control real de acceso vehicular conectado a AWS.</p>
+    <label>API DEV<input id="api-url" placeholder="https://...execute-api.us-east-2.amazonaws.com"></label>
+    <button id="save-api" type="button">Conectar</button>
+    <h2>Registrar vehículo autorizado</h2>
+    <form id="vehicle-form">
+      <label>Placa<input id="vehicle-plate" maxlength="9" required></label>
+      <label>Propietario<input id="owner-name" required></label>
+      <button>Registrar</button>
+    </form>
+    <h2>Registrar acceso</h2>
+    <form id="access-form">
+      <label>Placa<input id="plate" maxlength="9" required></label>
+      <label>Evento<select id="event-type"><option value="ENTRY">Ingreso</option><option value="EXIT">Salida</option></select></label>
+      <label>Puerta<input id="gate-id" value="gate-01" required></label>
+      <button>Procesar acceso</button>
+    </form>
+    <button id="refresh-events" type="button">Consultar últimos eventos</button>
+    <pre id="result"></pre>
+  </main>
+  <script src="app.js"></script>
+</body>
 </html>
