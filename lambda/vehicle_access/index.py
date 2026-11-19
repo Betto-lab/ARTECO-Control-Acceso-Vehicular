@@ -114,7 +114,9 @@ def record_access(payload, client=None):
     if errors:
         raise ValueError("; ".join(errors))
 
-    occurred_at = datetime.now(timezone.utc).isoformat()
+    # RDS Data API's TIMESTAMP type hint expects a SQL timestamp without a
+    # timezone suffix. PostgreSQL interprets it as UTC for this connection.
+    occurred_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
     event_id = hashlib.sha256(f"{plate}|{event_type}|{gate_id}|{occurred_at}".encode()).hexdigest()[:24]
     db, connection = _database(client)
     _ensure_schema(db, connection)
