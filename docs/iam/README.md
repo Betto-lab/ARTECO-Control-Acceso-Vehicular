@@ -13,8 +13,10 @@ estado remoto y lectura. No concede acceso al rol antiguo
 1. Revisar la política antes de adjuntarla.
 2. Adjuntarla únicamente a `arteco-github-actions-dev`.
 3. Ejecutar el workflow manual desde la rama `development`.
-4. Ejecutar `destroy` al terminar la demostración.
-5. Confirmar que el state no contiene recursos y retirar la política de
+4. Para adoptar el presupuesto creado en consola, seleccionar
+   `import-budget` y escribir `IMPORT`. Esta operación no crea infraestructura.
+5. Ejecutar `destroy` al terminar la demostración.
+6. Confirmar que el state no contiene recursos y retirar la política de
    despliegue si ya no se necesita.
 
 La primera ejecución puede revelar alguna acción de lectura adicional exigida
