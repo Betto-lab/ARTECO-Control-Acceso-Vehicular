@@ -90,3 +90,48 @@ variable "alert_email" {
   type        = string
   default     = ""
 }
+
+variable "enable_cost_budget" {
+  description = "Administra mediante Terraform el presupuesto mensual de costos de DEV."
+  type        = bool
+  default     = false
+}
+
+variable "cost_budget_name" {
+  description = "Nombre estable del presupuesto de DEV; debe coincidir con el presupuesto importado."
+  type        = string
+  default     = "ARTECO-Dev-Mensual-5USD"
+}
+
+variable "cost_budget_limit_usd" {
+  description = "Límite mensual en dólares para la alerta temprana de DEV."
+  type        = number
+  default     = 5
+
+  validation {
+    condition     = var.cost_budget_limit_usd > 0
+    error_message = "El límite del presupuesto debe ser mayor que cero."
+  }
+}
+
+variable "cost_budget_alert_threshold" {
+  description = "Porcentaje de consumo real que activa la notificación del presupuesto."
+  type        = number
+  default     = 85
+
+  validation {
+    condition     = var.cost_budget_alert_threshold > 0 && var.cost_budget_alert_threshold <= 100
+    error_message = "El umbral del presupuesto debe estar entre 1 y 100."
+  }
+}
+
+variable "cost_budget_notification_email" {
+  description = "Correo que recibe las alertas de AWS Budgets."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = !var.enable_cost_budget || can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.cost_budget_notification_email))
+    error_message = "Cuando enable_cost_budget=true se requiere un correo válido."
+  }
+}

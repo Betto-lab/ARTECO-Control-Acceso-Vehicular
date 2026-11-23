@@ -73,7 +73,28 @@ Pricing Calculator antes de aprobar PROD.
 - QA debe crearse solo durante las pruebas y destruirse al terminar para no
   duplicar el costo continuo de Aurora, NAT y endpoints privados.
 - El presupuesto de USD 5 configurado en la cuenta es una **alerta temprana de
-  DEV**, no una estimación del costo mensual de producción.
+  DEV**, no una estimación del costo mensual de producción. Terraform lo
+  administra con una alerta de costo real al 85 %.
+
+## Presupuesto como código
+
+`terraform/budget.tf` declara el presupuesto mensual
+`ARTECO-Dev-Mensual-5USD`, con límite de USD 5 y notificación cuando el gasto
+real supera el 85 % (USD 4,25). El recurso solo se habilita en DEV.
+
+Como el presupuesto se creó inicialmente desde la consola, debe importarse una
+sola vez al estado remoto antes del siguiente `apply`; no debe crearse un
+duplicado:
+
+```bash
+terraform -chdir=terraform import \
+  -var-file=../environments/dev.tfvars \
+  'aws_budgets_budget.dev_monthly[0]' \
+  '755909808380:ARTECO-Dev-Mensual-5USD'
+```
+
+Después de la importación, `terraform plan` debe mostrar cero creaciones para
+el presupuesto o únicamente ajustes controlados en su configuración.
 
 ## Atributos de calidad
 
