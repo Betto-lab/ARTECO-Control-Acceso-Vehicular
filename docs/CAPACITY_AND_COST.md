@@ -18,6 +18,7 @@ son supuestos académicos que deben revisarse después de medir el uso real.
 | Latencia de autorización objetivo | Menor de 3 s en el percentil 95 |
 | Retención de logs | 365 días |
 | Retención de copias de Aurora | 7 días |
+| Horario operativo DEV propuesto | Lunes a viernes, 07:00-19:00 (America/Lima) |
 
 El umbral de 50 usuarios cubre el pico estimado de 30 y deja capacidad para
 crecimiento o eventos extraordinarios. API Gateway aplica actualmente un
@@ -36,6 +37,25 @@ DEV evita NAT Gateway y el endpoint privado de SQS porque las funciones que
 usan Data API no necesitan permanecer dentro de la VPC. QA y PROD conservan
 la topología privada completa para validar el diseño de producción.
 
+El horario automático de Aurora está codificado mediante EventBridge Scheduler,
+pero `enable_database_schedule=false` evita activarlo accidentalmente. Cuando el
+grupo apruebe su uso, DEV puede iniciar a las 07:00 y detenerse a las 19:00 de
+lunes a viernes. QA se crea solo durante pruebas y PROD permanece disponible
+24x7 para cumplir el SLA.
+
+## Ciclo de vida de almacenamiento
+
+- Los objetos mayores de 128 KiB bajo `uploads/` pasan a `STANDARD_IA` a los
+  30 días y a Glacier a los 90 días en DEV y QA; expiran a los 365 días.
+- PROD conserva los objetos durante 730 días y retrasa las transiciones a 60
+  y 180 días.
+- Las versiones antiguas del frontend expiran después de 30 días en DEV, 90
+  días en QA y 365 días en PROD.
+- Las cargas multiparte incompletas se eliminan después de 7 días.
+
+El umbral de 128 KiB evita pagar transiciones de objetos pequeños que no se
+beneficiarían del almacenamiento infrecuente.
+
 ## Estimación preliminar
 
 La estimación se basa en precios públicos de AWS y debe confirmarse en AWS
@@ -53,7 +73,28 @@ Pricing Calculator antes de aprobar PROD.
 - QA debe crearse solo durante las pruebas y destruirse al terminar para no
   duplicar el costo continuo de Aurora, NAT y endpoints privados.
 - El presupuesto de USD 5 configurado en la cuenta es una **alerta temprana de
-  DEV**, no una estimación del costo mensual de producción.
+  DEV**, no una estimación del costo mensual de producción. Terraform lo
+  administra con una alerta de costo real al 85 %.
+
+## Presupuesto como código
+
+`terraform/budget.tf` declara el presupuesto mensual
+`ARTECO-Dev-Mensual-5USD`, con límite de USD 5 y notificación cuando el gasto
+real supera el 85 % (USD 4,25). El recurso solo se habilita en DEV.
+
+Como el presupuesto se creó inicialmente desde la consola, debe importarse una
+sola vez al estado remoto antes del siguiente `apply`; no debe crearse un
+duplicado:
+
+```bash
+terraform -chdir=terraform import \
+  -var-file=../environments/dev.tfvars \
+  'aws_budgets_budget.dev_monthly[0]' \
+  '755909808380:ARTECO-Dev-Mensual-5USD'
+```
+
+Después de la importación, `terraform plan` debe mostrar cero creaciones para
+el presupuesto o únicamente ajustes controlados en su configuración.
 
 ## Atributos de calidad
 

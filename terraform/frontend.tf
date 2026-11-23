@@ -1,5 +1,10 @@
 locals {
   frontend_bucket_name = "${var.project_name}-${var.environment}-frontend-${data.aws_caller_identity.current.account_id}"
+  frontend_noncurrent_retention_days = {
+    dev  = 30
+    qa   = 90
+    prod = 365
+  }
 }
 
 resource "aws_s3_bucket" "frontend" {
@@ -35,6 +40,27 @@ resource "aws_s3_bucket_versioning" "frontend" {
 
   versioning_configuration {
     status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+
+  depends_on = [aws_s3_bucket_versioning.frontend]
+
+  rule {
+    id     = "remove-old-frontend-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = local.frontend_noncurrent_retention_days[var.environment]
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
