@@ -37,6 +37,30 @@ variable "enable_database" {
   default     = false
 }
 
+variable "enable_database_schedule" {
+  description = "Programa encendido y apagado de Aurora no productivo. Requiere enable_database=true y permanece desactivado por defecto."
+  type        = bool
+  default     = false
+}
+
+variable "database_schedule_timezone" {
+  description = "Zona horaria IANA usada por los horarios de Aurora."
+  type        = string
+  default     = "America/Lima"
+}
+
+variable "database_start_schedule" {
+  description = "Expresion EventBridge Scheduler para iniciar Aurora DEV."
+  type        = string
+  default     = "cron(0 7 ? * MON-FRI *)"
+}
+
+variable "database_stop_schedule" {
+  description = "Expresion EventBridge Scheduler para detener Aurora DEV."
+  type        = string
+  default     = "cron(0 19 ? * MON-FRI *)"
+}
+
 variable "enable_sqs_vpc_endpoint" {
   description = "Crea el endpoint privado de SQS. Desactivarlo cuando Lambda no usa VPC evita su costo por hora."
   type        = bool
