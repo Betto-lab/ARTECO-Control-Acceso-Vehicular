@@ -1,0 +1,59 @@
+---
+- name: Publicar frontend ARTECO
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    aws_region: us-east-2
+    frontend_source: "{{ playbook_dir }}/../frontend"
+    frontend_assets:
+      - key: index.html
+        content_type: text/html; charset=utf-8
+      - key: app.js
+        content_type: application/javascript; charset=utf-8
+      - key: styles.css
+        content_type: text/css; charset=utf-8
+
+  pre_tasks:
+    - name: Validar variables requeridas
+      ansible.builtin.assert:
+        that:
+          - frontend_bucket | default('') | length > 0
+          - api_url | default('') | length > 0
+          - cloudfront_distribution_id | default('') | length > 0
+        fail_msg: >-
+          Debe proporcionar frontend_bucket, api_url y
+          cloudfront_distribution_id desde las salidas de Terraform.
+
+  tasks:
+    - name: Cargar archivos estáticos en el bucket privado
+      amazon.aws.s3_object:
+        region: "{{ aws_region }}"
+        bucket: "{{ frontend_bucket }}"
+        object: "{{ item.key }}"
+        src: "{{ frontend_source }}/{{ item.key }}"
+        mode: put
+        content_type: "{{ item.content_type }}"
+        encrypt: true
+      loop: "{{ frontend_assets }}"
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: Publicar configuración generada para el ambiente
+      amazon.aws.s3_object:
+        region: "{{ aws_region }}"
+        bucket: "{{ frontend_bucket }}"
+        object: config.js
+        content: >-
+          window.ARTECO_CONFIG = {{ {'api_url': api_url,
+          'environment': environment | default('dev')} | to_json }};
+        mode: put
+        content_type: application/javascript; charset=utf-8
+        encrypt: true
+
+    - name: Invalidar caché de CloudFront
+      community.aws.cloudfront_invalidation:
+        distribution_id: "{{ cloudfront_distribution_id }}"
+        target_paths:
+          - "/*"
