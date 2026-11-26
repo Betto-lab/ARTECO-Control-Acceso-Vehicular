@@ -27,6 +27,14 @@
     </form>
     <label>Filtrar historial por placa<input id="history-plate" maxlength="9" placeholder="Todas las placas"></label>
     <button id="refresh-events" type="button">Consultar últimos eventos</button>
+    <section id="history" hidden aria-live="polite">
+      <h2>Historial de accesos</h2>
+      <p id="history-summary"></p>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Fecha</th><th>Placa</th><th>Evento</th><th>Puerta</th><th>Decisión</th></tr></thead>
+        <tbody id="history-rows"></tbody>
+      </table></div>
+    </section>
     <pre id="result"></pre>
   </main>
   <script src="config.js"></script>

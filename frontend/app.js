@@ -1,5 +1,8 @@
 const apiInput = document.querySelector("#api-url");
 const result = document.querySelector("#result");
+const history = document.querySelector("#history");
+const historyRows = document.querySelector("#history-rows");
+const historySummary = document.querySelector("#history-summary");
 const queryApi = new URLSearchParams(location.search).get("api");
 const deployedApi = window.ARTECO_CONFIG?.api_url || "";
 apiInput.value = queryApi || localStorage.getItem("artecoApiUrl") || deployedApi;
@@ -63,8 +66,24 @@ document.querySelector("#refresh-events").addEventListener("click", async () => 
   try {
     const plate = document.querySelector("#history-plate").value.trim();
     const query = plate ? "?" + new URLSearchParams({plate}).toString() : "";
-    await callApi("GET", undefined, query);
+    const body = await callApi("GET", undefined, query);
+    historyRows.replaceChildren();
+    const events = Array.isArray(body.events) ? body.events : [];
+    historySummary.textContent = events.length ? `${events.length} accesos encontrados` : "No se encontraron accesos.";
+    for (const access of events) {
+      const row = document.createElement("tr");
+      const values = [access.occurred_at, access.plate, access.event_type === "ENTRY" ? "Ingreso" : "Salida", access.gate_id, access.authorized ? "Autorizado" : "Denegado"];
+      for (const value of values) {
+        const cell = document.createElement("td");
+        cell.textContent = value ?? "";
+        row.append(cell);
+      }
+      historyRows.append(row);
+    }
+    history.hidden = false;
+    result.textContent = "";
   } catch (error) {
+    history.hidden = true;
     result.textContent += "\n" + error.message;
   }
 });
