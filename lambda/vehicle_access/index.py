@@ -86,9 +86,14 @@ def _records(result):
 
 def register_vehicle(payload, client=None):
     plate = str(payload.get("plate", "")).upper().replace("-", "").strip()
-    owner_name = str(payload.get("owner_name", "")).strip()
-    if not PLATE_PATTERN.fullmatch(plate) or not owner_name:
-        raise ValueError("plate valido y owner_name son obligatorios")
+    owner_name = payload.get("owner_name")
+    if not isinstance(owner_name, str):
+        raise ValueError("owner_name debe ser texto")
+    owner_name = owner_name.strip()
+    if not 1 <= len(owner_name) <= 120:
+        raise ValueError("owner_name debe contener entre 1 y 120 caracteres")
+    if not PLATE_PATTERN.fullmatch(plate):
+        raise ValueError("plate debe contener entre 5 y 8 caracteres alfanumericos")
     db, connection = _database(client)
     _ensure_schema(db, connection)
     _execute(db, connection, """INSERT INTO vehicles (plate, owner_name, active)

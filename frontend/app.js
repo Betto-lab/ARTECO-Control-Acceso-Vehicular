@@ -31,10 +31,15 @@ document.querySelector("#save-api").addEventListener("click", () => {
 document.querySelector("#vehicle-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   try {
+    const ownerName = document.querySelector("#owner-name").value.trim();
+    if (!ownerName || [...ownerName].length > 120) {
+      result.textContent = "El propietario debe contener entre 1 y 120 caracteres.";
+      return;
+    }
     await callApi("POST", {
       action: "register_vehicle",
       plate: document.querySelector("#vehicle-plate").value,
-      owner_name: document.querySelector("#owner-name").value,
+      owner_name: ownerName,
     });
   } catch (error) {
     result.textContent += "\n" + error.message;

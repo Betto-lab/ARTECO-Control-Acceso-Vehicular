@@ -40,6 +40,34 @@ class VehicleAccessTests(unittest.TestCase):
         self.assertEqual(result["plate"], "ABC123")
         self.assertTrue(result["active"])
 
+    def test_rejects_invalid_owner_without_database_calls(self):
+        for owner in (None, 123, True, [], {}, "", "   ", "a" * 121):
+            with self.subTest(owner=owner):
+                db = FakeRdsData()
+                with self.assertRaisesRegex(ValueError, "owner_name"):
+                    VEHICLE_ACCESS.register_vehicle(
+                        {"plate": "ABC123", "owner_name": owner}, db
+                    )
+                self.assertEqual(db.statements, [])
+
+    def test_rejects_missing_owner(self):
+        db = FakeRdsData()
+        with self.assertRaisesRegex(ValueError, "owner_name"):
+            VEHICLE_ACCESS.register_vehicle({"plate": "ABC123"}, db)
+        self.assertEqual(db.statements, [])
+
+    def test_owner_boundaries_and_trimming_are_persisted(self):
+        for owner in ("A", "a" * 120, "María José"):
+            with self.subTest(owner=owner):
+                db = FakeRdsData()
+                result = VEHICLE_ACCESS.register_vehicle(
+                    {"plate": "ABC123", "owner_name": "  " + owner + "  "}, db
+                )
+                self.assertEqual(result["owner_name"], owner)
+                parameters = db.statements[-1]["parameters"]
+                saved = next(p for p in parameters if p["name"] == "owner")
+                self.assertEqual(saved["value"]["stringValue"], owner)
+
     def test_persists_and_allows_registered_vehicle(self):
         result = VEHICLE_ACCESS.record_access(
             {"plate": "ABC-123", "event_type": "entry", "gate_id": "gate-01"},
