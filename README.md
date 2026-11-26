@@ -6,6 +6,9 @@ Repositorio académico para evolucionar una base serverless de AWS hacia el proy
 > autorizan vehículos y conservan los eventos reales. El frontend está definido
 > para publicarse de forma privada con S3, CloudFront, Terraform y Ansible.
 
+La publicación del frontend sigue pendiente: el `apply` del 26 de noviembre
+falló por permisos IAM y Ansible no se ejecutó. Ver [evidencias](docs/EVIDENCE.md).
+
 ## Alcance disponible
 
 - Infraestructura base: API Gateway, Lambda, Aurora, S3, CloudFront, SQS/DLQ, VPC, IAM y CloudWatch.
