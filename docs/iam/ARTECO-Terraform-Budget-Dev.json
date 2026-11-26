@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ManageExistingArtecoDevBudget",
+      "Effect": "Allow",
+      "Action": [
+        "budgets:ModifyBudget",
+        "budgets:ViewBudget",
+        "budgets:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:budgets::755909808380:budget/ARTECO-Dev-Mensual-5USD"
+    }
+  ]
+}

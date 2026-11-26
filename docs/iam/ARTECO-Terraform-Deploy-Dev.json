@@ -346,17 +346,6 @@
       "Resource": "arn:aws:cloudwatch:us-east-2:755909808380:alarm:arteco-dev-*"
     },
     {
-      "Sid": "TerraformDevBudget",
-      "Effect": "Allow",
-      "Action": [
-        "budgets:CreateBudget",
-        "budgets:DeleteBudget",
-        "budgets:ModifyBudget",
-        "budgets:ViewBudget"
-      ],
-      "Resource": "arn:aws:budgets::755909808380:budget/ARTECO-Dev-Mensual-5USD"
-    },
-    {
       "Sid": "TerraformReadCallerIdentity",
       "Effect": "Allow",
       "Action": "sts:GetCallerIdentity",
