@@ -10,9 +10,9 @@ function endpoint() {
   return base.endsWith("/demo/vehicle-access") ? base : base + "/demo/vehicle-access";
 }
 
-async function callApi(method, payload) {
+async function callApi(method, payload, query = "") {
   result.textContent = "Procesando...";
-  const response = await fetch(endpoint(), {
+  const response = await fetch(endpoint() + query, {
     method,
     headers: {"Content-Type": "application/json"},
     body: payload ? JSON.stringify(payload) : undefined,
@@ -61,7 +61,9 @@ document.querySelector("#access-form").addEventListener("submit", async (event) 
 
 document.querySelector("#refresh-events").addEventListener("click", async () => {
   try {
-    await callApi("GET");
+    const plate = document.querySelector("#history-plate").value.trim();
+    const query = plate ? "?" + new URLSearchParams({plate}).toString() : "";
+    await callApi("GET", undefined, query);
   } catch (error) {
     result.textContent += "\n" + error.message;
   }
