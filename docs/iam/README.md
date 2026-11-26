@@ -8,6 +8,10 @@ La política de despliegue es independiente de las políticas existentes de
 estado remoto y lectura. No concede acceso al rol antiguo
 `arteco-github-actions-terraform`.
 
+`ARTECO-Terraform-Budget-Dev.json` documenta la política separada para el
+presupuesto existente. La importación de Terraform también lee sus etiquetas,
+por lo que requiere `budgets:ListTagsForResource` sobre ese presupuesto.
+
 ## Uso controlado
 
 1. Revisar la política antes de adjuntarla.
