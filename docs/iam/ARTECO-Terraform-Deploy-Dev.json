@@ -349,8 +349,6 @@
       "Sid": "TerraformDevBudget",
       "Effect": "Allow",
       "Action": [
-        "budgets:CreateBudget",
-        "budgets:DeleteBudget",
         "budgets:ModifyBudget",
         "budgets:ViewBudget"
       ],
