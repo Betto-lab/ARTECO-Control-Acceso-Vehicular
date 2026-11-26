@@ -81,7 +81,7 @@ jobs:
           terraform_version: "1.16.4"
 
       - name: Inicializar backend remoto
-        run: terraform -chdir=terraform init -input=false -reconfigure
+        run: terraform -chdir=terraform init -input=false -reconfigure -backend-config=../environments/dev.backend.hcl
 
       - name: Importar presupuesto DEV existente
         if: inputs.operation == 'import-budget'

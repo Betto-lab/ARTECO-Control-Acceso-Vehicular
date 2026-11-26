@@ -1,5 +1,12 @@
 # Evidencias por integrante
 
+## Estado de DEV — 26 de noviembre de 2026
+
+- Presupuesto mensual de USD 5 importado al state remoto: https://github.com/Betto-lab/ARTECO-Control-Acceso-Vehicular/actions/runs/45756755986
+- Plan posterior a la alineación del presupuesto: https://github.com/Betto-lab/ARTECO-Control-Acceso-Vehicular/actions/runs/45817147460 — `9 to add, 0 to change, 0 to destroy`.
+- Intento de publicar el frontend: https://github.com/Betto-lab/ARTECO-Control-Acceso-Vehicular/actions/runs/45817672799 — falló por permisos IAM faltantes para crear el bucket S3, crear el control de acceso de CloudFront y configurar el ciclo de vida S3. Ansible no llegó a ejecutarse. El frontend todavía no está desplegado.
+
+
 ## Despliegue DEV — 18 de noviembre de 2026
 
 - Apply final exitoso: https://github.com/Betto-lab/ARTECO-Control-Acceso-Vehicular/actions/runs/44365811942

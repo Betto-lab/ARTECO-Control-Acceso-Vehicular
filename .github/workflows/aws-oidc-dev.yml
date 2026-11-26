@@ -43,7 +43,7 @@ jobs:
           terraform_version: "1.16.4"
 
       - name: Inicializar backend remoto
-        run: terraform -chdir=terraform init -input=false -reconfigure
+        run: terraform -chdir=terraform init -input=false -reconfigure -backend-config=../environments/dev.backend.hcl
 
       - name: Revisar plan de infraestructura DEV
         run: terraform -chdir=terraform plan -input=false -no-color -var-file=../environments/dev.tfvars

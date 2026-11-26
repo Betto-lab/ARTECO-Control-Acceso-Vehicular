@@ -33,6 +33,13 @@ base de datos y controlar costos.
 | QA | Pruebas integrales previas a producción | Definido mediante `qa.tfvars`; despliegue manual y temporal |
 | PROD | Operación final con red privada y controles completos | Definido mediante `prod.tfvars`; requiere aprobación |
 
+Cada ambiente tiene una clave de state separada en
+`environments/{dev,qa,prod}.backend.hcl`. En DEV se usa la misma clave
+`arteco/dev/terraform.tfstate` ya desplegada. QA y PROD no se han desplegado;
+sus roles OIDC, permisos y presupuestos deben configurarse antes de ejecutar
+un plan conectado a AWS. Nunca se deben combinar sus `tfvars` con el backend
+de DEV.
+
 DEV evita NAT Gateway y el endpoint privado de SQS porque las funciones que
 usan Data API no necesitan permanecer dentro de la VPC. QA y PROD conservan
 la topología privada completa para validar el diseño de producción.
@@ -73,18 +80,19 @@ Pricing Calculator antes de aprobar PROD.
 - QA debe crearse solo durante las pruebas y destruirse al terminar para no
   duplicar el costo continuo de Aurora, NAT y endpoints privados.
 - El presupuesto de USD 5 configurado en la cuenta es una **alerta temprana de
-  DEV**, no una estimación del costo mensual de producción. Terraform lo
-  administra con una alerta de costo real al 85 %.
+  DEV**, no una estimación del costo mensual de producción. Terraform conserva
+  las alertas existentes de costo real al 85 % y 100 %, y previsión al 100 %.
 
 ## Presupuesto como código
 
 `terraform/budget.tf` declara el presupuesto mensual
-`ARTECO-Dev-Mensual-5USD`, con límite de USD 5 y notificación cuando el gasto
-real supera el 85 % (USD 4,25). El recurso solo se habilita en DEV.
+`ARTECO-Dev-Mensual-5USD`, con límite de USD 5 y notificaciones de gasto real
+al 85 % (USD 4,25) y 100 %, además de previsión al 100 %. El recurso solo se
+habilita en DEV.
 
-Como el presupuesto se creó inicialmente desde la consola, debe importarse una
-sola vez al estado remoto antes del siguiente `apply`; no debe crearse un
-duplicado:
+El presupuesto se creó inicialmente desde la consola y se importó al state
+remoto el 26 de noviembre de 2026. Esta es la orden utilizada; no debe
+repetirse mientras el recurso permanezca en el state:
 
 ```bash
 terraform -chdir=terraform import \
@@ -93,8 +101,8 @@ terraform -chdir=terraform import \
   '755909808380:ARTECO-Dev-Mensual-5USD'
 ```
 
-Después de la importación, `terraform plan` debe mostrar cero creaciones para
-el presupuesto o únicamente ajustes controlados en su configuración.
+Después de la importación, `terraform plan` mostró cero cambios para el
+presupuesto. La evidencia está en `docs/EVIDENCE.md`.
 
 ## Atributos de calidad
 
