@@ -56,6 +56,19 @@ class VehicleAccessTests(unittest.TestCase):
             VEHICLE_ACCESS.register_vehicle({"plate": "ABC123"}, db)
         self.assertEqual(db.statements, [])
 
+    def test_history_filters_by_normalized_plate(self):
+        db = FakeRdsData()
+        VEHICLE_ACCESS.list_events(db, "abc-123")
+        query = db.statements[-1]
+        self.assertIn("WHERE plate = :plate", query["sql"])
+        self.assertEqual(query["parameters"], [{"name": "plate", "value": {"stringValue": "ABC123"}}])
+
+    def test_history_rejects_invalid_plate_before_database_call(self):
+        db = FakeRdsData()
+        with self.assertRaisesRegex(ValueError, "plate"):
+            VEHICLE_ACCESS.list_events(db, "abc%' OR 1=1")
+        self.assertEqual(db.statements, [])
+
     def test_owner_boundaries_and_trimming_are_persisted(self):
         for owner in ("A", "a" * 120, "María José"):
             with self.subTest(owner=owner):

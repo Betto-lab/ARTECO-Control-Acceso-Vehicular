@@ -152,11 +152,21 @@ def record_access(payload, client=None):
     }
 
 
-def list_events(client=None):
+def list_events(client=None, plate=None):
+    normalized_plate = None
+    if plate is not None and str(plate).strip():
+        normalized_plate = str(plate).upper().replace("-", "").strip()
+        if not PLATE_PATTERN.fullmatch(normalized_plate):
+            raise ValueError("plate debe contener entre 5 y 8 caracteres alfanumericos")
     db, connection = _database(client)
     _ensure_schema(db, connection)
-    result = _execute(db, connection, """SELECT event_id, plate, event_type, gate_id,
-        authorized, occurred_at FROM access_events ORDER BY occurred_at DESC LIMIT 25""")
+    sql = """SELECT event_id, plate, event_type, gate_id,
+        authorized, occurred_at FROM access_events"""
+    parameters = []
+    if normalized_plate:
+        sql += " WHERE plate = :plate"
+        parameters.append({"name": "plate", "value": {"stringValue": normalized_plate}})
+    result = _execute(db, connection, sql + " ORDER BY occurred_at DESC LIMIT 25", parameters)
     return _records(result)
 
 
@@ -164,7 +174,7 @@ def lambda_handler(event, context):
     try:
         method = event.get("requestContext", {}).get("http", {}).get("method", "POST")
         if method == "GET":
-            return _response(200, {"events": list_events()})
+            return _response(200, {"events": list_events(plate=(event.get("queryStringParameters") or {}).get("plate"))})
         payload = _parse_body(event)
         if payload.get("action") == "register_vehicle":
             return _response(201, register_vehicle(payload))
