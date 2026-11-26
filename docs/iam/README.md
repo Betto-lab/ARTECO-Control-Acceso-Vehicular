@@ -12,6 +12,11 @@ estado remoto y lectura. No concede acceso al rol antiguo
 presupuesto existente. La importación de Terraform también lee sus etiquetas,
 por lo que requiere `budgets:ListTagsForResource` sobre ese presupuesto.
 
+`ARTECO-Frontend-Deploy-Dev.json` propone una política separada para publicar
+el frontend en DEV. El intento de `apply` del 26 de noviembre falló porque la
+política real adjunta al rol aún no tiene permisos para crear el bucket S3,
+crear el control de acceso de CloudFront ni actualizar el ciclo de vida S3.
+
 ## Uso controlado
 
 1. Revisar la política antes de adjuntarla.
